@@ -21,8 +21,9 @@ const weeklyData = [
     { date: "January 19, 2025", bennyWeight: 150.00, maggieWeight: 115 }
 ];
 
-let bennyScore = 0;
-let maggieScore = 0;
+// Retrieve saved scores from localStorage (if they exist)
+let bennyScore = localStorage.getItem('bennyScore') ? parseInt(localStorage.getItem('bennyScore')) : 0;
+let maggieScore = localStorage.getItem('maggieScore') ? parseInt(localStorage.getItem('maggieScore')) : 0;
 
 function updateScores() {
     const bennyBox = document.getElementById('benny-box');
@@ -31,6 +32,11 @@ function updateScores() {
     document.getElementById('benny-score').textContent = `$${bennyScore}`;
     document.getElementById('maggie-score').textContent = `$${maggieScore}`;
 
+    // Save scores to localStorage
+    localStorage.setItem('bennyScore', bennyScore);
+    localStorage.setItem('maggieScore', maggieScore);
+
+    // Update background colors based on score comparison
     if (bennyScore > maggieScore) {
         bennyBox.style.backgroundColor = 'lightyellow';
         maggieBox.style.backgroundColor = '#f0f0f0';
@@ -113,5 +119,5 @@ weeklyData.forEach(({ date, bennyWeight, maggieWeight }) => {
     weeklyEntriesContainer.appendChild(entry);
 });
 
-// Initialize scores
+// Initialize scores and display
 updateScores();
