@@ -1,0 +1,85 @@
+<style>
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f7f7f7;
+        max-width: 100%;
+    }
+    h1 {
+        text-align: center;
+        color: #4CAF50;
+        font-size: 24px;
+        margin: 20px 0;
+    }
+    .score-board {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 10px;
+        gap: 2px; /* Thin gap between score boxes */
+    }
+    .score-box {
+        background-color: #f0f0f0;
+        padding: 15px;
+        width: 48%;
+        text-align: center;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+    .score-box h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+    .score-box div {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+    .date-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 10px;
+        cursor: pointer;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        margin: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .triangle {
+        transition: transform 0.3s;
+    }
+    .collapsed .triangle {
+        transform: rotate(180deg);
+    }
+    .weekly-details {
+        display: none;
+    }
+    .collapsed .weekly-details {
+        display: block;
+    }
+    .weekly-columns {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 10px;
+        margin: 0 10px;
+    }
+    .weekly-column {
+        width: 45%;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .vertical-line {
+        border-left: 2px solid #f0f0f0;
+    }
+    .radio-group {
+        margin: 10px 0;
+        font-size: 16px;
+    }
+    label {
+        display: block;
+        color: #333;
+    }
+</style>
