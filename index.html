@@ -5,39 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAMM SLAM</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
-    <h1>BAMM SLAM</h1>
+    <div class="sticky-container">
+        <h1>BAMM SLAM</h1>
 
-    <!-- Scoreboard Section -->
-    <div class="score-board">
-        <div id="maggie-box" class="score-box">
-            <h2>Maggie</h2>
-            <p id="maggie-score">$0</p>
+        <!-- Score boxes -->
+        <div class="score-container">
+            <div id="maggie-box" class="score-box">
+                <h2>Maggie</h2>
+                <p id="maggie-score">$0</p>
+            </div>
+            <div id="benny-box" class="score-box">
+                <h2>Benny</h2>
+                <p id="benny-score">$0</p>
+            </div>
         </div>
-        <div id="benny-box" class="score-box">
-            <h2>Benny</h2>
-            <p id="benny-score">$0</p>
+
+        <!-- Total score -->
+        <div class="total-score">
+            <h3>Total: <span id="total-score">$0</span></h3>
         </div>
     </div>
 
-    <p>Total Score: <span id="total-score">$0</span></p>
-
-    <!-- Weekly entries will be dynamically created and inserted here -->
-    <div id="weekly-entries"></div>
-
-    <!-- Buttons for "Show all dates" and "Collapse all dates" -->
-    <div style="text-align: center; margin-top: 20px;">
-        <a href="#" id="show-all-dates">Show all dates</a> | 
-        <a href="#" id="collapse-all-dates">Collapse all dates</a>
+    <!-- Weekly entries -->
+    <div class="container">
+        <div id="weekly-entries" class="weekly-entries"></div>
     </div>
 
-    <!-- Firebase CDN Scripts (non-modular, without analytics) -->
+    <!-- Firebase and JS -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <!-- Custom JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
