@@ -24,7 +24,52 @@ const weeklyData = [
 let bennyScore = 0;
 let maggieScore = 0;
 
-// Load saved scores and selections from localStorage
+function calculateScores() {
+    bennyScore = 0;
+    maggieScore = 0;
+
+    weeklyData.forEach(({ date }) => {
+        ['benny', 'maggie'].forEach(person => {
+            ['weight', 'protein', 'carbs'].forEach(metric => {
+                const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
+                if (checkbox && checkbox.checked) {
+                    if (person === 'benny') bennyScore += 5;
+                    else maggieScore += 5;
+                }
+            });
+        });
+    });
+
+    updateScores();
+}
+
+function updateScores() {
+    const bennyBox = document.getElementById('benny-box');
+    const maggieBox = document.getElementById('maggie-box');
+    
+    document.getElementById('benny-score').textContent = `$${bennyScore}`;
+    document.getElementById('maggie-score').textContent = `$${maggieScore}`;
+
+    // Save the scores to localStorage
+    localStorage.setItem('bennyScore', bennyScore);
+    localStorage.setItem('maggieScore', maggieScore);
+
+    // Remove highlight and tie classes first
+    bennyBox.classList.remove('highlight', 'tie');
+    maggieBox.classList.remove('highlight', 'tie');
+
+    // Compare scores and apply the appropriate class
+    if (bennyScore > maggieScore) {
+        bennyBox.classList.add('highlight');
+    } else if (maggieScore > bennyScore) {
+        maggieBox.classList.add('highlight');
+    } else {
+        // If both have the same score, apply the "tie" class
+        bennyBox.classList.add('tie');
+        maggieBox.classList.add('tie');
+    }
+}
+
 function loadFromLocalStorage() {
     const savedBennyScore = localStorage.getItem('bennyScore');
     const savedMaggieScore = localStorage.getItem('maggieScore');
@@ -35,44 +80,45 @@ function loadFromLocalStorage() {
         ['benny', 'maggie'].forEach(person => {
             ['weight', 'protein', 'carbs'].forEach(metric => {
                 const savedValue = localStorage.getItem(`${date}-${person}-${metric}`);
-                if (savedValue) {
-                    document.querySelector(`input[name="${date}-${person}-${metric}"][value="${savedValue}"]`).checked = true;
+                const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
+                if (checkbox && savedValue === 'yes') {
+                    checkbox.checked = true;
                 }
             });
+
+            const isCollapsed = localStorage.getItem(`${date}-collapsed`);
+            const isHidden = localStorage.getItem(`${date}-hidden`);
+
+            const entry = document.getElementById(`entry-${date}`);
+            if (entry) {
+                const triangle = entry.querySelector('.triangle');
+                const weeklyDetails = entry.querySelector('.weekly-details');
+
+                if (isCollapsed === 'true') {
+                    weeklyDetails.style.display = 'none';
+                    triangle.textContent = '▼';
+                    entry.classList.add('collapsed');
+                }
+
+                if (isHidden === 'true') {
+                    entry.style.display = 'none';
+                }
+            }
         });
     });
-}
 
-function updateScores() {
-    const bennyBox = document.getElementById('benny-box');
-    const maggieBox = document.getElementById('maggie-box');
-    
-    document.getElementById('benny-score').textContent = `$${bennyScore}`;
-    document.getElementById('maggie-score').textContent = `$${maggieScore}`;
-
-    // Save the scores in localStorage
-    localStorage.setItem('bennyScore', bennyScore);
-    localStorage.setItem('maggieScore', maggieScore);
-
-    if (bennyScore > maggieScore) {
-        bennyBox.style.backgroundColor = 'lightyellow';
-        maggieBox.style.backgroundColor = '#f0f0f0';
-    } else if (maggieScore > bennyScore) {
-        maggieBox.style.backgroundColor = 'lightyellow';
-        bennyBox.style.backgroundColor = '#f0f0f0';
-    } else {
-        bennyBox.style.backgroundColor = 'lightgreen';
-        maggieBox.style.backgroundColor = 'lightgreen';
-    }
+    calculateScores();
 }
 
 function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     const weekEntry = document.createElement('div');
     weekEntry.classList.add('week-entry');
+    weekEntry.id = `entry-${week}`;
 
     const dateHeader = document.createElement('div');
     dateHeader.classList.add('date-header');
     dateHeader.innerHTML = `
+        <span class="half-circle">◡</span>
         <span>${week}</span>
         <span class="triangle">▲</span>
     `;
@@ -84,20 +130,28 @@ function createWeeklyEntry(week, bennyWeight, maggieWeight) {
             <div class="weekly-column">
                 <strong>Maggie</strong>
                 <p>Goal: ${maggieWeight} lbs</p>
-                <div class="radio-group">
-                    <label>Weight Reached: <input type="radio" name="${week}-maggie-weight" value="yes" /> Yes <input type="radio" name="${week}-maggie-weight" value="no" /> No</label>
-                    <label>Protein ≥ 30%: <input type="radio" name="${week}-maggie-protein" value="yes" /> Yes <input type="radio" name="${week}-maggie-protein" value="no" /> No</label>
-                    <label>Carbs ≤ 30%: <input type="radio" name="${week}-maggie-carbs" value="yes" /> Yes <input type="radio" name="${week}-maggie-carbs" value="no" /> No</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-maggie-weight" /> Weight Reached</label>
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-maggie-protein" /> Protein ≥ 30%</label>
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-maggie-carbs" /> Carbs ≤ 30%</label>
                 </div>
             </div>
             <div class="vertical-line"></div>
             <div class="weekly-column">
                 <strong>Benny</strong>
                 <p>Goal: ${bennyWeight} lbs</p>
-                <div class="radio-group">
-                    <label>Weight Reached: <input type="radio" name="${week}-benny-weight" value="yes" /> Yes <input type="radio" name="${week}-benny-weight" value="no" /> No</label>
-                    <label>Protein ≥ 30%: <input type="radio" name="${week}-benny-protein" value="yes" /> Yes <input type="radio" name="${week}-benny-protein" value="no" /> No</label>
-                    <label>Carbs ≤ 30%: <input type="radio" name="${week}-benny-carbs" value="yes" /> Yes <input type="radio" name="${week}-benny-carbs" value="no" /> No</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-benny-weight" /> Weight Reached</label>
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-benny-protein" /> Protein ≥ 30%</label>
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="${week}-benny-carbs" /> Carbs ≤ 30%</label>
                 </div>
             </div>
         </div>
@@ -106,31 +160,63 @@ function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     weekEntry.appendChild(dateHeader);
     weekEntry.appendChild(weeklyDetails);
 
-    // Collapse/Expand functionality
+    // Toggle content visibility and rotate triangle
     dateHeader.addEventListener('click', () => {
         weekEntry.classList.toggle('collapsed');
+        const triangle = dateHeader.querySelector('.triangle');
+        const isCollapsed = weekEntry.classList.contains('collapsed');
+        weeklyDetails.style.display = isCollapsed ? 'none' : 'block';
+        triangle.textContent = isCollapsed ? '▼' : '▲';
+
+        localStorage.setItem(`${week}-collapsed`, isCollapsed);
     });
 
-    // Add scoring logic for radio buttons
-    weeklyDetails.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
+    // Add event listener for half-circle ◡ to hide heading
+    dateHeader.querySelector('.half-circle').addEventListener('click', (e) => {
+        weekEntry.style.display = 'none';
+        localStorage.setItem(`${week}-hidden`, true);
+    });
+
+    // Add event listeners to recalculate the scores dynamically when a checkbox changes
+    weeklyDetails.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
             const [_, person, metric] = e.target.name.split('-');
-            const value = e.target.value;
+            const value = e.target.checked ? 'yes' : 'no';
 
-            if (value === 'yes') {
-                if (person === 'benny') bennyScore += 5;
-                else maggieScore += 5;
-            }
-
-            // Save the radio button state in localStorage
+            // Save the checkbox state in localStorage
             localStorage.setItem(`${week}-${person}-${metric}`, value);
 
-            updateScores();
+            // Recalculate the score every time a checkbox is changed
+            calculateScores();
         });
     });
 
     return weekEntry;
 }
+
+// Show all hidden entries when "Show all dates" is clicked
+document.getElementById('show-all-dates').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.week-entry').forEach(entry => {
+        entry.style.display = 'block';
+        const week = entry.id.replace('entry-', '');
+        localStorage.removeItem(`${week}-hidden`);
+    });
+});
+
+// Collapse all date content when "Collapse all dates" is clicked
+document.getElementById('collapse-all-dates').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.week-entry').forEach(entry => {
+        const weeklyDetails = entry.querySelector('.weekly-details');
+        const triangle = entry.querySelector('.triangle');
+        weeklyDetails.style.display = 'none';
+        triangle.textContent = '▼';
+        entry.classList.add('collapsed');
+        const week = entry.id.replace('entry-', '');
+        localStorage.setItem(`${week}-collapsed`, true);
+    });
+});
 
 // Initialize weekly entries
 const weeklyEntriesContainer = document.getElementById('weekly-entries');
@@ -139,6 +225,4 @@ weeklyData.forEach(({ date, bennyWeight, maggieWeight }) => {
     weeklyEntriesContainer.appendChild(entry);
 });
 
-// Load selections and scores from localStorage and initialize the score display
 loadFromLocalStorage();
-updateScores();
