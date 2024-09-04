@@ -28,10 +28,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Weekly data for dates and weights
     const weeklyData = [
-        { date: "September 08, 2024", bennyWeight: 171.85, maggieWeight: 134 },
-        { date: "September 15, 2024", bennyWeight: 170.70, maggieWeight: 133 },
-        { date: "September 22, 2024", bennyWeight: 169.55, maggieWeight: 132 },
-        { date: "September 29, 2024", bennyWeight: 168.40, maggieWeight: 131 },
+        { date: "September 08, 2024", bennyWeight: 171.9, maggieWeight: 128.3 },
+        { date: "September 15, 2024", bennyWeight: 170.7, maggieWeight: 127.6 },
+        { date: "September 22, 2024", bennyWeight: 169.6, maggieWeight: 126.9 },
+        { date: "September 29, 2024", bennyWeight: 168.4, maggieWeight: 126.2 },
+        { date: "October 06, 2024", bennyWeight: 167.3, maggieWeight: 125.5 },
+        { date: "October 13, 2024", bennyWeight: 166.1, maggieWeight: 124.8 },
+        { date: "October 20, 2024", bennyWeight: 165, maggieWeight: 124.1 },
+        { date: "October 27, 2024", bennyWeight: 163.8, maggieWeight: 123.4 },
+        { date: "November 03, 2024", bennyWeight: 162.7, maggieWeight: 122.7 },
+        { date: "November 10, 2024", bennyWeight: 161.5, maggieWeight: 122 },
+        { date: "November 17, 2024", bennyWeight: 160.4, maggieWeight: 121.3 },
+        { date: "November 24, 2024", bennyWeight: 159.2, maggieWeight: 120.6 },
+        { date: "December 01, 2024", bennyWeight: 158.1, maggieWeight: 119.9 },
+        { date: "December 08, 2024", bennyWeight: 156.9, maggieWeight: 119.2 },
+        { date: "December 15, 2024", bennyWeight: 155.8, maggieWeight: 118.5 },
+        { date: "December 22, 2024", bennyWeight: 154.6, maggieWeight: 117.8 },
+        { date: "December 29, 2024", bennyWeight: 153.5, maggieWeight: 117.1 },
+        { date: "January 05, 2025", bennyWeight: 152.3, maggieWeight: 116.4 },
+        { date: "January 12, 2025", bennyWeight: 151.2, maggieWeight: 115.7 },
+        { date: "January 19, 2025", bennyWeight: 150, maggieWeight: 115 }
     ];
 
     // Function to calculate scores dynamically

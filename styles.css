@@ -91,6 +91,7 @@ h1 {
 
 .weekly-column {
     width: 48%;
+    font-size: 14px;
 }
 
 .vertical-line {
@@ -101,12 +102,13 @@ h1 {
 
 /* Checkbox styling */
 .checkbox-group {
+    font-size: 12px;
     margin-top: 10px;
-    font-size: 16px;
 }
 
 .checkbox-group input {
     margin-right: 10px;
+    font-size: 12px;
 }
 
 /* Ensure no content gets hidden underneath the sticky header */
