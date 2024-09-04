@@ -1,3 +1,24 @@
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCstkXE_zP6mqmgvMd2uUW0AyCNXEsbnmo",
+  authDomain: "bamm-slam.firebaseapp.com",
+  databaseURL: "https://bamm-slam-default-rtdb.firebaseio.com/",
+  projectId: "bamm-slam",
+  storageBucket: "bamm-slam.appspot.com",
+  messagingSenderId: "254712095917",
+  appId: "1:254712095917:web:6a5156c610fad0c5621224",
+  measurementId: "G-STYFKBJ67N"
+};
+
+// Initialize Firebase App
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Analytics (optional)
+firebase.analytics();
+
+// Initialize Realtime Database
+const database = firebase.database();
+
 const weeklyData = [
     { date: "September 08, 2024", bennyWeight: 171.85, maggieWeight: 134 },
     { date: "September 15, 2024", bennyWeight: 170.70, maggieWeight: 133 },
@@ -44,72 +65,55 @@ function calculateScores() {
 }
 
 function updateScores() {
-    const bennyBox = document.getElementById('benny-box');
-    const maggieBox = document.getElementById('maggie-box');
-    
     document.getElementById('benny-score').textContent = `$${bennyScore}`;
     document.getElementById('maggie-score').textContent = `$${maggieScore}`;
 
-    // Save the scores to localStorage
-    localStorage.setItem('bennyScore', bennyScore);
-    localStorage.setItem('maggieScore', maggieScore);
+    const totalScore = bennyScore + maggieScore;
+    document.getElementById('total-score').textContent = `$${totalScore}`;
 
-    // Remove highlight and tie classes first
-    bennyBox.classList.remove('highlight', 'tie');
-    maggieBox.classList.remove('highlight', 'tie');
-
-    // Compare scores and apply the appropriate class
-    if (bennyScore > maggieScore) {
-        bennyBox.classList.add('highlight');
-    } else if (maggieScore > bennyScore) {
-        maggieBox.classList.add('highlight');
-    } else {
-        // If both have the same score, apply the "tie" class
-        bennyBox.classList.add('tie');
-        maggieBox.classList.add('tie');
-    }
+    // Save scores to Firebase
+    database.ref('scores').set({
+        bennyScore,
+        maggieScore,
+        totalScore
+    });
 }
 
-function loadFromLocalStorage() {
-    const savedBennyScore = localStorage.getItem('bennyScore');
-    const savedMaggieScore = localStorage.getItem('maggieScore');
-    if (savedBennyScore !== null) bennyScore = parseInt(savedBennyScore);
-    if (savedMaggieScore !== null) maggieScore = parseInt(savedMaggieScore);
+// Load saved data from Firebase
+function loadFromFirebase() {
+    database.ref('scores').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            bennyScore = data.bennyScore || 0;
+            maggieScore = data.maggieScore || 0;
+            document.getElementById('benny-score').textContent = `$${bennyScore}`;
+            document.getElementById('maggie-score').textContent = `$${maggieScore}`;
+            document.getElementById('total-score').textContent = `$${data.totalScore || 0}`;
+        }
+    });
 
+    // Load checked boxes
     weeklyData.forEach(({ date }) => {
         ['benny', 'maggie'].forEach(person => {
             ['weight', 'protein', 'carbs'].forEach(metric => {
-                const savedValue = localStorage.getItem(`${date}-${person}-${metric}`);
-                const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
-                if (checkbox && savedValue === 'yes') {
-                    checkbox.checked = true;
-                }
+                database.ref(`checkboxes/${date}/${person}/${metric}`).on('value', (snapshot) => {
+                    const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
+                    if (checkbox) {
+                        checkbox.checked = snapshot.val() === true;
+                    }
+                });
             });
-
-            const isCollapsed = localStorage.getItem(`${date}-collapsed`);
-            const isHidden = localStorage.getItem(`${date}-hidden`);
-
-            const entry = document.getElementById(`entry-${date}`);
-            if (entry) {
-                const triangle = entry.querySelector('.triangle');
-                const weeklyDetails = entry.querySelector('.weekly-details');
-
-                if (isCollapsed === 'true') {
-                    weeklyDetails.style.display = 'none';
-                    triangle.textContent = '▼';
-                    entry.classList.add('collapsed');
-                }
-
-                if (isHidden === 'true') {
-                    entry.style.display = 'none';
-                }
-            }
         });
     });
+}
 
+function handleCheckboxChange(checkbox, date, person, metric) {
+    const isChecked = checkbox.checked;
+    database.ref(`checkboxes/${date}/${person}/${metric}`).set(isChecked);
     calculateScores();
 }
 
+// Set up weekly entries and attach event listeners for checkbox changes
 function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     const weekEntry = document.createElement('div');
     weekEntry.classList.add('week-entry');
@@ -160,69 +164,20 @@ function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     weekEntry.appendChild(dateHeader);
     weekEntry.appendChild(weeklyDetails);
 
-    // Toggle content visibility and rotate triangle
-    dateHeader.addEventListener('click', () => {
-        weekEntry.classList.toggle('collapsed');
-        const triangle = dateHeader.querySelector('.triangle');
-        const isCollapsed = weekEntry.classList.contains('collapsed');
-        weeklyDetails.style.display = isCollapsed ? 'none' : 'block';
-        triangle.textContent = isCollapsed ? '▼' : '▲';
-
-        localStorage.setItem(`${week}-collapsed`, isCollapsed);
-    });
-
-    // Add event listener for half-circle ◡ to hide heading
-    dateHeader.querySelector('.half-circle').addEventListener('click', (e) => {
-        weekEntry.style.display = 'none';
-        localStorage.setItem(`${week}-hidden`, true);
-    });
-
-    // Add event listeners to recalculate the scores dynamically when a checkbox changes
+    // Event listener for checkbox changes
     weeklyDetails.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
-            const [_, person, metric] = e.target.name.split('-');
-            const value = e.target.checked ? 'yes' : 'no';
-
-            // Save the checkbox state in localStorage
-            localStorage.setItem(`${week}-${person}-${metric}`, value);
-
-            // Recalculate the score every time a checkbox is changed
-            calculateScores();
-        });
+        const [_, person, metric] = checkbox.name.split('-');
+        checkbox.addEventListener('change', () => handleCheckboxChange(checkbox, week, person, metric));
     });
 
     return weekEntry;
 }
 
-// Show all hidden entries when "Show all dates" is clicked
-document.getElementById('show-all-dates').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('.week-entry').forEach(entry => {
-        entry.style.display = 'block';
-        const week = entry.id.replace('entry-', '');
-        localStorage.removeItem(`${week}-hidden`);
-    });
-});
-
-// Collapse all date content when "Collapse all dates" is clicked
-document.getElementById('collapse-all-dates').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('.week-entry').forEach(entry => {
-        const weeklyDetails = entry.querySelector('.weekly-details');
-        const triangle = entry.querySelector('.triangle');
-        weeklyDetails.style.display = 'none';
-        triangle.textContent = '▼';
-        entry.classList.add('collapsed');
-        const week = entry.id.replace('entry-', '');
-        localStorage.setItem(`${week}-collapsed`, true);
-    });
-});
-
-// Initialize weekly entries
+// Initialize weekly entries and load from Firebase
 const weeklyEntriesContainer = document.getElementById('weekly-entries');
 weeklyData.forEach(({ date, bennyWeight, maggieWeight }) => {
     const entry = createWeeklyEntry(date, bennyWeight, maggieWeight);
     weeklyEntriesContainer.appendChild(entry);
 });
 
-loadFromLocalStorage();
+loadFromFirebase();
