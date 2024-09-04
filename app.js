@@ -21,9 +21,27 @@ const weeklyData = [
     { date: "January 19, 2025", bennyWeight: 150.00, maggieWeight: 115 }
 ];
 
-// Retrieve saved scores from localStorage (if they exist)
-let bennyScore = localStorage.getItem('bennyScore') ? parseInt(localStorage.getItem('bennyScore')) : 0;
-let maggieScore = localStorage.getItem('maggieScore') ? parseInt(localStorage.getItem('maggieScore')) : 0;
+let bennyScore = 0;
+let maggieScore = 0;
+
+// Load saved scores and selections from localStorage
+function loadFromLocalStorage() {
+    const savedBennyScore = localStorage.getItem('bennyScore');
+    const savedMaggieScore = localStorage.getItem('maggieScore');
+    if (savedBennyScore !== null) bennyScore = parseInt(savedBennyScore);
+    if (savedMaggieScore !== null) maggieScore = parseInt(savedMaggieScore);
+
+    weeklyData.forEach(({ date }) => {
+        ['benny', 'maggie'].forEach(person => {
+            ['weight', 'protein', 'carbs'].forEach(metric => {
+                const savedValue = localStorage.getItem(`${date}-${person}-${metric}`);
+                if (savedValue) {
+                    document.querySelector(`input[name="${date}-${person}-${metric}"][value="${savedValue}"]`).checked = true;
+                }
+            });
+        });
+    });
+}
 
 function updateScores() {
     const bennyBox = document.getElementById('benny-box');
@@ -32,11 +50,10 @@ function updateScores() {
     document.getElementById('benny-score').textContent = `$${bennyScore}`;
     document.getElementById('maggie-score').textContent = `$${maggieScore}`;
 
-    // Save scores to localStorage
+    // Save the scores in localStorage
     localStorage.setItem('bennyScore', bennyScore);
     localStorage.setItem('maggieScore', maggieScore);
 
-    // Update background colors based on score comparison
     if (bennyScore > maggieScore) {
         bennyBox.style.backgroundColor = 'lightyellow';
         maggieBox.style.backgroundColor = '#f0f0f0';
@@ -98,13 +115,16 @@ function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     weeklyDetails.querySelectorAll('input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             const [_, person, metric] = e.target.name.split('-');
-            if (person === 'benny') {
-                if (e.target.value === 'yes') bennyScore += 5;
-                else bennyScore -= 5;
-            } else {
-                if (e.target.value === 'yes') maggieScore += 5;
-                else maggieScore -= 5;
+            const value = e.target.value;
+
+            if (value === 'yes') {
+                if (person === 'benny') bennyScore += 5;
+                else maggieScore += 5;
             }
+
+            // Save the radio button state in localStorage
+            localStorage.setItem(`${week}-${person}-${metric}`, value);
+
             updateScores();
         });
     });
@@ -119,5 +139,6 @@ weeklyData.forEach(({ date, bennyWeight, maggieWeight }) => {
     weeklyEntriesContainer.appendChild(entry);
 });
 
-// Initialize scores and display
+// Load selections and scores from localStorage and initialize the score display
+loadFromLocalStorage();
 updateScores();
