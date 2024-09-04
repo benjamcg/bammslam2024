@@ -1,131 +1,96 @@
-// Initialize Firebase
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCstkXE_zP6mqmgvMd2uUW0AyCNXEsbnmo",
   authDomain: "bamm-slam.firebaseapp.com",
-  databaseURL: "https://bamm-slam-default-rtdb.firebaseio.com/",
+  databaseURL: "https://bamm-slam-default-rtdb.firebaseio.com",
   projectId: "bamm-slam",
   storageBucket: "bamm-slam.appspot.com",
   messagingSenderId: "254712095917",
-  appId: "1:254712095917:web:6a5156c610fad0c5621224",
-  measurementId: "G-STYFKBJ67N"
+  appId: "1:254712095917:web:6a5156c610fad0c5621224"
 };
 
-// Initialize Firebase App
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// Initialize Analytics (optional)
-firebase.analytics();
-
-// Initialize Realtime Database
 const database = firebase.database();
 
+// Basic score variables
+let bennyScore = 0;
+let maggieScore = 0;
+
+// DOM Elements
+const weeklyEntriesContainer = document.getElementById('weekly-entries');
+const bennyScoreElement = document.getElementById('benny-score');
+const maggieScoreElement = document.getElementById('maggie-score');
+const totalScoreElement = document.getElementById('total-score');
+const bennyBox = document.getElementById('benny-box');
+const maggieBox = document.getElementById('maggie-box');
+
+// Weekly data for dates and weights
 const weeklyData = [
     { date: "September 08, 2024", bennyWeight: 171.85, maggieWeight: 134 },
     { date: "September 15, 2024", bennyWeight: 170.70, maggieWeight: 133 },
     { date: "September 22, 2024", bennyWeight: 169.55, maggieWeight: 132 },
     { date: "September 29, 2024", bennyWeight: 168.40, maggieWeight: 131 },
-    { date: "October 06, 2024", bennyWeight: 167.25, maggieWeight: 130 },
-    { date: "October 13, 2024", bennyWeight: 166.10, maggieWeight: 129 },
-    { date: "October 20, 2024", bennyWeight: 164.95, maggieWeight: 128 },
-    { date: "October 27, 2024", bennyWeight: 163.80, maggieWeight: 127 },
-    { date: "November 03, 2024", bennyWeight: 162.65, maggieWeight: 126 },
-    { date: "November 10, 2024", bennyWeight: 161.50, maggieWeight: 125 },
-    { date: "November 17, 2024", bennyWeight: 160.35, maggieWeight: 124 },
-    { date: "November 24, 2024", bennyWeight: 159.20, maggieWeight: 123 },
-    { date: "December 01, 2024", bennyWeight: 158.05, maggieWeight: 122 },
-    { date: "December 08, 2024", bennyWeight: 156.90, maggieWeight: 121 },
-    { date: "December 15, 2024", bennyWeight: 155.75, maggieWeight: 120 },
-    { date: "December 22, 2024", bennyWeight: 154.60, maggieWeight: 119 },
-    { date: "December 29, 2024", bennyWeight: 153.45, maggieWeight: 118 },
-    { date: "January 05, 2025", bennyWeight: 152.30, maggieWeight: 117 },
-    { date: "January 12, 2025", bennyWeight: 151.15, maggieWeight: 116 },
-    { date: "January 19, 2025", bennyWeight: 150.00, maggieWeight: 115 }
 ];
 
-let bennyScore = 0;
-let maggieScore = 0;
-
+// Function to calculate scores dynamically
 function calculateScores() {
     bennyScore = 0;
     maggieScore = 0;
 
-    weeklyData.forEach(({ date }) => {
-        ['benny', 'maggie'].forEach(person => {
-            ['weight', 'protein', 'carbs'].forEach(metric => {
-                const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
-                if (checkbox && checkbox.checked) {
-                    if (person === 'benny') bennyScore += 5;
-                    else maggieScore += 5;
-                }
-            });
+    // Iterate over each weekly entry and update the scores
+    weeklyEntriesContainer.querySelectorAll('.week-entry').forEach(entry => {
+        const bennyCheckboxes = entry.querySelectorAll('input[name*="benny"]');
+        const maggieCheckboxes = entry.querySelectorAll('input[name*="maggie"]');
+
+        // Benny's checkboxes
+        bennyCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                bennyScore += 5;
+            }
+        });
+
+        // Maggie's checkboxes
+        maggieCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                maggieScore += 5;
+            }
         });
     });
 
-    updateScores();
+    // Update the scores on the page
+    bennyScoreElement.textContent = `$${bennyScore}`;
+    maggieScoreElement.textContent = `$${maggieScore}`;
+    totalScoreElement.textContent = `$${bennyScore + maggieScore}`;
+
+    // Update colors based on score comparison
+    if (bennyScore > maggieScore) {
+        bennyBox.style.backgroundColor = 'yellow';
+        maggieBox.style.backgroundColor = 'lightgrey';
+    } else if (maggieScore > bennyScore) {
+        maggieBox.style.backgroundColor = 'yellow';
+        bennyBox.style.backgroundColor = 'lightgrey';
+    } else {
+        // If scores are equal, set both to pastel green
+        bennyBox.style.backgroundColor = 'lightgreen';
+        maggieBox.style.backgroundColor = 'lightgreen';
+    }
 }
 
-function updateScores() {
-    document.getElementById('benny-score').textContent = `$${bennyScore}`;
-    document.getElementById('maggie-score').textContent = `$${maggieScore}`;
-
-    const totalScore = bennyScore + maggieScore;
-    document.getElementById('total-score').textContent = `$${totalScore}`;
-
-    // Save scores to Firebase
-    database.ref('scores').set({
-        bennyScore,
-        maggieScore,
-        totalScore
-    });
+// Function to update checkbox states in Firebase
+function updateCheckboxState(week, name, checked) {
+    const checkboxPath = `checkboxes/${week}/${name}`;
+    database.ref(checkboxPath).set(checked);
 }
 
-// Load saved data from Firebase
-function loadFromFirebase() {
-    database.ref('scores').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            bennyScore = data.bennyScore || 0;
-            maggieScore = data.maggieScore || 0;
-            document.getElementById('benny-score').textContent = `$${bennyScore}`;
-            document.getElementById('maggie-score').textContent = `$${maggieScore}`;
-            document.getElementById('total-score').textContent = `$${data.totalScore || 0}`;
-        }
-    });
-
-    // Load checked boxes
-    weeklyData.forEach(({ date }) => {
-        ['benny', 'maggie'].forEach(person => {
-            ['weight', 'protein', 'carbs'].forEach(metric => {
-                database.ref(`checkboxes/${date}/${person}/${metric}`).on('value', (snapshot) => {
-                    const checkbox = document.querySelector(`input[name="${date}-${person}-${metric}"]`);
-                    if (checkbox) {
-                        checkbox.checked = snapshot.val() === true;
-                    }
-                });
-            });
-        });
-    });
-}
-
-function handleCheckboxChange(checkbox, date, person, metric) {
-    const isChecked = checkbox.checked;
-    database.ref(`checkboxes/${date}/${person}/${metric}`).set(isChecked);
-    calculateScores();
-}
-
-// Set up weekly entries and attach event listeners for checkbox changes
+// Function to create a weekly entry
 function createWeeklyEntry(week, bennyWeight, maggieWeight) {
     const weekEntry = document.createElement('div');
     weekEntry.classList.add('week-entry');
-    weekEntry.id = `entry-${week}`;
-
+    
     const dateHeader = document.createElement('div');
     dateHeader.classList.add('date-header');
-    dateHeader.innerHTML = `
-        <span class="half-circle">◡</span>
-        <span>${week}</span>
-        <span class="triangle">▲</span>
-    `;
+    dateHeader.textContent = week;
 
     const weeklyDetails = document.createElement('div');
     weeklyDetails.classList.add('weekly-details');
@@ -161,23 +126,40 @@ function createWeeklyEntry(week, bennyWeight, maggieWeight) {
         </div>
     `;
 
+    // Add event listeners to the checkboxes to recalculate scores when they change
+    weeklyDetails.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            calculateScores();
+            updateCheckboxState(week, checkbox.name, checkbox.checked);
+        });
+    });
+
     weekEntry.appendChild(dateHeader);
     weekEntry.appendChild(weeklyDetails);
-
-    // Event listener for checkbox changes
-    weeklyDetails.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        const [_, person, metric] = checkbox.name.split('-');
-        checkbox.addEventListener('change', () => handleCheckboxChange(checkbox, week, person, metric));
-    });
 
     return weekEntry;
 }
 
-// Initialize weekly entries and load from Firebase
-const weeklyEntriesContainer = document.getElementById('weekly-entries');
+// Load the weekly entries into the DOM
 weeklyData.forEach(({ date, bennyWeight, maggieWeight }) => {
     const entry = createWeeklyEntry(date, bennyWeight, maggieWeight);
     weeklyEntriesContainer.appendChild(entry);
+
+    // Fetch stored checkbox states from Firebase and update UI
+    const checkboxPath = `checkboxes/${date}`;
+    database.ref(checkboxPath).once('value', snapshot => {
+        const checkboxStates = snapshot.val();
+        if (checkboxStates) {
+            Object.keys(checkboxStates).forEach(key => {
+                const checkbox = document.querySelector(`input[name="${key}"]`);
+                if (checkbox) {
+                    checkbox.checked = checkboxStates[key];
+                }
+            });
+            calculateScores(); // Recalculate scores after restoring states
+        }
+    });
 });
 
-loadFromFirebase();
+// Initialize scores on load
+calculateScores();

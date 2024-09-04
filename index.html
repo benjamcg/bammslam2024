@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAMM SLAM</title>
-    <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
     <h1>BAMM SLAM</h1>
@@ -22,6 +22,8 @@
         </div>
     </div>
 
+    <p>Total Score: <span id="total-score">$0</span></p>
+
     <!-- Weekly entries will be dynamically created and inserted here -->
     <div id="weekly-entries"></div>
 
@@ -31,12 +33,11 @@
         <a href="#" id="collapse-all-dates">Collapse all dates</a>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js"></script>
+    <!-- Firebase CDN Scripts (non-modular, without analytics) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <!-- Link to your custom JavaScript file -->
+    <!-- Custom JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
