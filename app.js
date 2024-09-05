@@ -22,9 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const weeklyEntriesContainer = document.getElementById('weekly-entries');
     const bennyScoreElement = document.getElementById('benny-score');
     const maggieScoreElement = document.getElementById('maggie-score');
-    const totalScoreElement = document.getElementById('total-score');
+    const totalScoreElement = document.querySelector('.score-text');
     const bennyBox = document.getElementById('benny-box');
     const maggieBox = document.getElementById('maggie-box');
+    const showAllDatesButton = document.getElementById('show-all-dates');
 
     // Weekly data for dates and weights
     const weeklyData = [
@@ -72,10 +73,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        bennyScoreElement.textContent = `$${bennyScore}`;
-        maggieScoreElement.textContent = `$${maggieScore}`;
-        totalScoreElement.textContent = `$${bennyScore + maggieScore}`;
+        // Update score display if elements exist
+        if (bennyScoreElement && maggieScoreElement && totalScoreElement) {
+            bennyScoreElement.textContent = `$${bennyScore}`;
+            maggieScoreElement.textContent = `$${maggieScore}`;
+            totalScoreElement.textContent = `Total: $${bennyScore + maggieScore}`;
+        }
 
+        // Update score box colors
         if (bennyScore > maggieScore) {
             bennyBox.style.backgroundColor = 'yellow';
             maggieBox.style.backgroundColor = 'lightgrey';
@@ -91,7 +96,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to update checkbox states in Firebase
     function updateCheckboxState(week, name, checked) {
         const checkboxPath = `checkboxes/${week}/${name}`;
-        database.ref(checkboxPath).set(checked);
+        database.ref(checkboxPath).set(checked);  // Save the checkbox state to Firebase
+    }
+
+    // Function to toggle visibility of a specific week
+    function toggleDateVisibility(week, weekEntry) {
+        const isHidden = weekEntry.classList.toggle('hidden');
+        database.ref(`visibility/${week}`).set(isHidden);
     }
 
     // Function to create a weekly entry
@@ -101,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const dateHeader = document.createElement('div');
         dateHeader.classList.add('date-header');
-        dateHeader.innerHTML = `${week}`;
+        dateHeader.innerHTML = `${week} <span class="hide-date">◡</span>`;
 
         const weeklyDetails = document.createElement('div');
         weeklyDetails.classList.add('weekly-details');
@@ -137,6 +148,11 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
+        // Event listener for the semi-circle button to hide/reveal
+        dateHeader.querySelector('.hide-date').addEventListener('click', () => {
+            toggleDateVisibility(week, weekEntry);
+        });
+
         weeklyDetails.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 calculateScores();
@@ -155,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const entry = createWeeklyEntry(date, bennyWeight, maggieWeight);
         weeklyEntriesContainer.appendChild(entry);
 
+        // Retrieve checkbox states from Firebase on page load
         const checkboxPath = `checkboxes/${date}`;
         database.ref(checkboxPath).once('value', snapshot => {
             const checkboxStates = snapshot.val();
@@ -162,11 +179,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 Object.keys(checkboxStates).forEach(key => {
                     const checkbox = document.querySelector(`input[name="${key}"]`);
                     if (checkbox) {
-                        checkbox.checked = checkboxStates[key];
+                        checkbox.checked = checkboxStates[key];  // Set checkbox to its saved state
                     }
                 });
-                calculateScores();
+                calculateScores();  // Recalculate scores based on saved checkbox states
             }
+        });
+
+        // Check visibility from Firebase
+        database.ref(`visibility/${date}`).once('value', snapshot => {
+            const isHidden = snapshot.val();
+            if (isHidden) {
+                entry.classList.add('hidden');
+            }
+        });
+    });
+
+    // Event listener for "Show All Dates" button
+    showAllDatesButton.addEventListener('click', function () {
+        document.querySelectorAll('.week-entry.hidden').forEach(entry => {
+            entry.classList.remove('hidden');
+        });
+
+        // Update Firebase to reveal all dates
+        weeklyData.forEach(({ date }) => {
+            database.ref(`visibility/${date}`).set(false);
         });
     });
 

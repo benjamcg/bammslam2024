@@ -23,7 +23,7 @@ body {
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
-    padding-top: 120px; /* Ensures content does not go under the score boxes */
+    padding-top: 0px; /* Ensures content does not go under the score boxes */
 }
 
 h1 {
@@ -54,19 +54,47 @@ h1 {
 }
 
 .score-box p {
-    font-size: 50px;
+    font-size: 36px;
     margin: 10px 0 0;
 }
 
-/* Total score */
+/* Total score container */
 .total-score {
+    color: lightgrey;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Adds a gap between the total score, the line, and the link */
 }
 
-.total-score h3 {
-    font-size: 14px;
+/* Total score text (default style, not using heading) */
+.total-score .score-text {
+    font-size: 12px;
     margin: 0;
-    weight: light;
+    padding-right: 10px;
+    position: relative;
+}
+
+/* Add a thin vertical line between the total score and the link */
+.total-score .score-text::after {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 100%;
+    background-color: lightgrey;
+    position: absolute;
+    right: -5px; /* Move it slightly left */
+    top: 0;
+}
+
+/* Show All Dates link */
+#show-all-dates {
+    font-size: 14px;
+    color: lightblue;
+    text-decoration: underline;
+    cursor: pointer;
+    padding-left: 5px; /* Adjusted to reduce extra space */
 }
 
 /* Weekly entries */
@@ -75,6 +103,7 @@ h1 {
 }
 
 .week-entry {
+    font-size: 12px;
     color: lightgrey;
     background-color: #484848;
     border-top: 1px solid #ddd;
@@ -84,21 +113,39 @@ h1 {
 
 /* Two-column layout for weekly details */
 .weekly-columns {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: inline-block;
+    width: 100%;
+    white-space: nowrap; /* Prevent wrapping of the columns */
 }
 
+/* Weekly columns stay side by side */
 .weekly-column {
-    width: 48%;
-    font-size: 14px;
+    display: inline-block;
+    vertical-align: top;
+    width: 48%; /* Ensure both columns take up roughly half the space */
+    box-sizing: border-box;
+    padding: 15px;
 }
 
+/* Vertical line */
 .vertical-line {
-    width: 2%;
-    background-color: #ccc;
-    height: 100%;
+    display: inline-block;
+    width: 1px; /* Small width for the vertical line */
+    background-color: grey; /* Light grey color for the line */
+    height: auto; /* Ensure the line stretches with content */
+    vertical-align: top;
 }
+
+/* Remove media queries to avoid stacking */
+
+/* Clearfix to handle any floating issues */
+.weekly-columns::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* No need for media queries, columns will always float side by side */
 
 /* Checkbox styling */
 .checkbox-group {
@@ -130,10 +177,37 @@ h1 {
         margin-top: 10px;
     }
 }
+
+/* Add styles for the semi-circle button next to each date heading */
 .date-header {
-    font-size: 18px;
+    font-size: 12px;
     color: lightgrey;
     font-weight: bold;
     text-transform: uppercase;
-    margin-bottom: 15px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    position: relative;
+}
+
+.hide-date {
+    font-size: 12px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    color: lightgrey;
+}
+
+/* Show All Dates link styling */
+#show-all-dates {
+    font-size: 12px;
+    color: lightgrey;
+    cursor: pointer;
+    margin-left: 10px;
+    text-decoration: none;
+}
+
+/* Add the hidden class to hide entries */
+.hidden {
+    display: none;
 }
