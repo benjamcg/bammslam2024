@@ -101,8 +101,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to toggle visibility of a specific week
     function toggleDateVisibility(week, weekEntry) {
-        const isHidden = weekEntry.classList.toggle('hidden');
-        database.ref(`visibility/${week}`).set(isHidden);
+        // Check if it's currently hidden or visible
+        const isHidden = weekEntry.classList.contains('hidden');
+        
+        if (isHidden) {
+            // If hidden, remove the hidden class and let it fade in
+            weekEntry.classList.remove('hidden');
+            database.ref(`visibility/${week}`).set(false); // Update Firebase to reflect visibility
+        } else {
+            // If visible, fade out by adding the hidden class
+            weekEntry.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+            weekEntry.classList.add('hidden');
+            database.ref(`visibility/${week}`).set(true); // Update Firebase to reflect visibility
+        }
     }
 
     // Function to create a weekly entry
@@ -209,3 +220,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     calculateScores();
 });
+
+function toggleDateVisibility(week, weekEntry) {
+    const isHidden = weekEntry.classList.contains('hidden');
+    
+    if (isHidden) {
+        weekEntry.classList.remove('hidden'); // Fade in
+        database.ref(`visibility/${week}`).set(false); // Update visibility in Firebase
+    } else {
+        weekEntry.classList.add('hidden'); // Fade out
+        database.ref(`visibility/${week}`).set(true); // Update visibility in Firebase
+    }
+}

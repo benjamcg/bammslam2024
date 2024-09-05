@@ -1,3 +1,24 @@
+/* Week entry before hiding */
+.week-entry {
+    transition: opacity 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease;
+    opacity: 1;
+    max-height: 500px; /* Set large enough for the content */
+    margin-bottom: 30px; /* Default margin */
+    padding: 10px; /* Default padding */
+    overflow: hidden;
+    visibility: visible;
+}
+
+/* Week entry when hidden */
+.week-entry.hidden {
+    opacity: 0;
+    max-height: 0; /* Collapse height */
+    margin-bottom: 0; /* Collapse margin */
+    padding: 0; /* Collapse padding */
+    pointer-events: none; /* Disable interaction */
+    visibility: hidden;
+}
+
 /* General styling */
 body {
     font-family: Arial, sans-serif;
@@ -102,6 +123,7 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Add transition effect to the week entry for fading */
 .week-entry {
     font-size: 12px;
     color: lightgrey;
@@ -109,6 +131,10 @@ h1 {
     border-top: 1px solid #ddd;
     margin-bottom: 10px;
     padding: 10px;
+    transition: opacity 0.5s ease, max-height 0.5s ease;
+    opacity: 1;
+    max-height: 500px; /* Large enough to fit the content */
+    overflow: hidden; /* Hide content when max-height is reduced */
 }
 
 /* Two-column layout for weekly details */
@@ -207,7 +233,3 @@ h1 {
     text-decoration: none;
 }
 
-/* Add the hidden class to hide entries */
-.hidden {
-    display: none;
-}
