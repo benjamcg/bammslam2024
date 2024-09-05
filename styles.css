@@ -2,21 +2,19 @@
 .week-entry {
     transition: opacity 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease;
     opacity: 1;
-    max-height: 500px; /* Set large enough for the content */
+    max-height: 500px; /* Adjust based on content */
     margin-bottom: 30px; /* Default margin */
     padding: 10px; /* Default padding */
     overflow: hidden;
-    visibility: visible;
 }
 
 /* Week entry when hidden */
 .week-entry.hidden {
-    opacity: 0;
+    opacity: 0; /* Fade out first */
     max-height: 0; /* Collapse height */
     margin-bottom: 0; /* Collapse margin */
     padding: 0; /* Collapse padding */
     pointer-events: none; /* Disable interaction */
-    visibility: hidden;
 }
 
 /* General styling */
